@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتيجة اختبار التجويد</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* منع ظهورScrollbar */
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('ali ya ali.png') no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(5px);
+            z-index: 0; /* خلفية */
+        }
+
+        .container {
+            position: relative;
+            z-index: 1; /* يجعل المحتوى يظهر فوق الخلفية */
+            text-align: center;
+            padding: 20px;
+            color: white; /* تغيير لون النص لجعله أكثر وضوحًا */
+        }
+
+        .logo {
+            max-width: 100%;
+            height: auto;
+        }
+
+        h1 {
+            margin: 10px 0;
+        }
+
+        h2 {
+            font-size: 18px;
+            color: black; /* تعديل اللون إلى الأسود */
+            margin: 5px 0;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 300px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div> <!-- خلفية ضبابية -->
+    <div class="container">
+        <img src="ali ya ali.png" alt="شعار الأكاديمية" class="logo">
+        <h1>أكاديمية القادة للتعليم والتأهيل</h1>
+        <h2>اختبار المستوى الأول للتجويد</h2> <!-- العنوان الفرعي -->
+        <input type="text" id="studentCode" placeholder="ادخل الكود الخاص بك">
+        <button id="submitBtn">عرض النتيجة</button>
+        <canvas id="scoreCanvas" width="200" height="200"></canvas>
+    </div>
+    <script>
+        const studentCodes = {
+            "A482": { name: "اسماء العوضي", score: 52 },
+            "S239": { name: "سارين عبدالله حسن كليب", score: 72 },
+            "R194": { name: "رشا أحمد شمسان", score: 68 },
+            "D583": { name: "ذكرى العزي عبده أحمد", score: 77 },
+            "F671": { name: "فاطمة محسن علي", score: 65 },
+            "M735": { name: "ماريا خلف الله علي", score: 54 },
+            "K298": { name: "خلود ناصر عوض", score: 70 },
+            "E713": { name: "ايمان سامى السيد مصطفى", score: 62 },
+            "A840": { name: "عائشة عماد النشيواتي", score: 75 },
+            "M199": { name: "مريم محمد عمر العوضي", score: 55 },
+            "E424": { name: "ايمان محمد عبدالعزيز", score: 58 },
+            "M526": { name: "مروة محمد سيف دغيش الحمادي", score: 66 },
+            "F360": { name: "فرحه محمد جعفر", score: 60 },
+            "A271": { name: "أروى علي محمد العديني", score: 50 },
+            "S180": { name: "شهد يحيى كداف", score: 48 },
+            "H915": { name: "هدى لافي مطلق العتيبي", score: 72 },
+            "H376": { name: "هدى لافي مطلق العتيبي", score: 49 },
+            "M530": { name: "مرام جمال العوضي", score: 58 },
+            "R688": { name: "رغداء عبدالباقي", score: 62 },
+            "R296": { name: "رباب احمد قايد", score: 53 },
+            "N557": { name: "نادية مخلف مطر", score: 61 },
+            "B471": { name: "بسمة نادر عامر", score: 42 },
+            "R369": { name: "رينا أحمد محمد", score: 44 },
+            "E274": { name: "الهام عبدالله عوض", score: 65 },
+            "S627": { name: "سنية محمد عطاالله", score: 71 },
+            "F742": { name: "فتحية حسين الدوسري", score: 67 },
+            "M823": { name: "منال جمال الفقيه", score: 54 },
+            "A918": { name: "آمال أمين عبده علي القرشي", score: 50 },
+            "B501": { name: "بيان النحيل", score: 63 },
+            "M638": { name: "منال إبراهيم حسن عامر", score: 56 },
+            "S411": { name: "سميرة ميمون محمد امدياز", score: 49 },
+            "N142": { name: "ندى توفيق دويكات", score: 52 },
+            "B962": { name: "بلقيس محمد", score: 61 },
+            "A673": { name: "أروى علي محمد العديني", score: 70 },
+            "A184": { name: "عفاف محمد احمد", score: 66 },
+            "N583": { name: "ناهد", score: 73 },
+            "A347": { name: "اروى داود الدويكات", score: 60 },
+            "H765": { name: "هبه حمد مصطفى ابو شقير", score: 47 },
+            "M109": { name: "مريم محمد", score: 62 },
+            "N930": { name: "نسيبة خلف الله", score: 54 },
+            "A525": { name: "عبير عبدالله قايد اليريمي", score: 49 },
+            "K623": { name: "خلودابرص", score: 65 },
+            "L485": { name: "لمياء محمد الخطيب", score: 53 },
+            "A774": { name: "ألطاف أمين القرشي", score: 71 },
+            "M382": { name: "مريم عيسى علي الاسد", score: 57 },
+            "K734": { name: "خلودابرص", score: 66 },
+            "M571": { name: "مها سالم قايد", score: 61 },
+            "M283": { name: "مرشدة محمد نديم الزين", score: 58 },
+            "D726": { name: "داليا عيسى الزرد", score: 74 },
+            "H951": { name: "هيام عدنان عزيز", score: 69 },
+            "M168": { name: "المعلمة ايمان منصور", score: 72 },
+            "N493": { name: "ندى عمر خالد درويش", score: 60 },
+            "A308": { name: "اميرة ابو زيد", score: 65 },
+            "A634": { name: "امال عباس الجاك", score: 62 }
+        };
+
+        document.getElementById("submitBtn").addEventListener("click", function() {
+            const inputCode = document.getElementById("studentCode").value.trim().toUpperCase(); // تحويل الإدخال إلى حروف كبيرة بدون مسافات
+
+            const student = studentCodes[inputCode];
+            const score = student ? student.score : undefined;
+            const canvas = document.getElementById("scoreCanvas");
+            const ctx = canvas.getContext("2d");
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (score !== undefined) {
+                const percentage = (score / 80) * 100;
+                let currentPercentage = 0;
+                const interval = setInterval(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 80, 0, Math.PI * 2 * (currentPercentage / 100), false);
+                    ctx.lineWidth = 15;
+                    ctx.strokeStyle = "#4caf50";
+                    ctx.stroke();
+                    ctx.font = "20px Arial";
+                    ctx.fillStyle = "#333";
+                    ctx.fillText(`نتيجتك: ${score}/80`, 50, 110);
+                    
+                    currentPercentage++;
+                    if (currentPercentage > percentage) {
+                        clearInterval(interval);
+                    }
+                }, 10);
+            } else {
+                alert("الكود غير موجود. يرجى التأكد من إدخاله بشكل صحيح.");
+            }
+        });
+    </script>
+</body>
+</html>
